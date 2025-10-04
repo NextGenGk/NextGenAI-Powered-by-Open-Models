@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 async function validateApiKey(apiKey: string) {
   const key = await prisma.apiKey.findUnique({
     where: { key: apiKey },
