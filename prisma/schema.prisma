@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id // Clerk user ID
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  apiKeys   ApiKey[]
+  requests  Request[]
+}
+
+model ApiKey {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  userId      String
+  isActive    Boolean  @default(true)
+  rateLimit   Int      @default(100) // requests per hour
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime?
+  
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requests    Request[]
+  requestLogs RequestLog[] @relation("RequestLogs")
+  apiUsage    ApiUsage[]   @relation("ApiUsage")
+}
+
+model Request {
+  id        String   @id @default(cuid())
+  userId    String
+  apiKeyId  String
+  endpoint  String
+  method    String
+  tokens    Int?
+  response  String?
+  status    Int
+  createdAt DateTime @default(now())
+  
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiKey    ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+}
+
+model RequestLog {
+  id           String   @id @default(cuid())
+  apiKeyId     String
+  userId       String
+  endpoint     String
+  method       String
+  statusCode   Int
+  responseTime Int?     // in milliseconds
+  tokens       Int?
+  errorType    String?  // e.g., "Rate Limit Exceeded", "Invalid API Key", etc.
+  userAgent    String?
+  ipAddress    String?
+  timestamp    DateTime @default(now())
+  
+  apiKey       ApiKey   @relation("RequestLogs", fields: [apiKeyId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, timestamp])
+  @@index([apiKeyId, timestamp])
+  @@index([timestamp])
+}
+
+model ApiUsage {
+  id           String   @id @default(cuid())
+  apiKeyId     String
+  endpoint     String?
+  status       String   // 'success' or 'error'
+  responseTime Int?     // in milliseconds
+  tokens       Int?
+  timestamp    DateTime @default(now())
+  
+  apiKey       ApiKey   @relation("ApiUsage", fields: [apiKeyId], references: [id], onDelete: Cascade)
+  
+  @@index([apiKeyId, timestamp])
+  @@index([timestamp])
+}
