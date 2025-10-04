@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createOpenAIClient } from '@/lib/openai-client'
-import { AVAILABLE_MODELS, isValidModel, getModelById } from '@/lib/models'
+import { AVAILABLE_MODELS, isValidModel } from '@/lib/models'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -50,8 +50,6 @@ export async function POST(request: NextRequest) {
         message: `Model '${requestedModel}' is not supported. Available models: ${availableModelIds.join(', ')}` 
       }, { status: 400 })
     }
-
-    const modelInfo = getModelById(requestedModel)
 
     startTime = Date.now()
     

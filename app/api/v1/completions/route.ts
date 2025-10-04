@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         endpoint: '/api/v1/completions',
         status: 'success',
         responseTime,
-        tokens: completionResponse.usage.total_tokens
+        tokens: completionResponse.usage?.total_tokens || 0
       }
     })
 

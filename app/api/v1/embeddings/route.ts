@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         endpoint: '/api/v1/embeddings',
         status: 'success',
         responseTime,
-        tokens: embeddingResponse.usage.total_tokens
+        tokens: embeddingResponse.usage?.total_tokens || 0
       }
     })
 
