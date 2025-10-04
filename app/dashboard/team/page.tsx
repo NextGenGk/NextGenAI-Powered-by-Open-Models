@@ -22,23 +22,23 @@ export default function TeamPage() {
 
   const fetchTeamMembers = useCallback(async () => {
     try {
-      // For now, we'll use mock data. In a real app, this would fetch from your API
-      const mockMembers: TeamMember[] = [
-        {
-          id: '1',
-          name: user?.fullName || 'You',
-          email: user?.primaryEmailAddress?.emailAddress || '',
+      // Show only the current user as the owner
+      if (user) {
+        const currentUser: TeamMember = {
+          id: user.id,
+          name: user.fullName || 'You',
+          email: user.primaryEmailAddress?.emailAddress || '',
           role: 'owner',
           status: 'active',
-          joinedAt: new Date().toISOString(),
-          avatar: user?.imageUrl
+          joinedAt: user.createdAt?.toISOString() || new Date().toISOString(),
+          avatar: user.imageUrl
         }
-      ]
-      
-      setTeamMembers(mockMembers)
+        
+        setTeamMembers([currentUser])
+      }
       setIsLoading(false)
     } catch (error) {
-      console.error('Error fetching team members:', error)
+      console.error('Error loading user data:', error)
       setIsLoading(false)
     }
   }, [user])

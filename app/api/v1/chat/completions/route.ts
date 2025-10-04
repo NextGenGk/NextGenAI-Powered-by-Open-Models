@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createOpenAIClient } from '@/lib/openai-client'
+import { AVAILABLE_MODELS, isValidModel, getModelById } from '@/lib/models'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -38,10 +39,24 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const openai = createOpenAIClient()
 
+    // Use model from request or fallback to environment variable or default
+    const requestedModel = body.model || process.env.LLM_MODEL || "ai/gpt-oss-20b"
+    
+    // Validate model
+    if (!isValidModel(requestedModel)) {
+      const availableModelIds = AVAILABLE_MODELS.map(m => m.id)
+      return NextResponse.json({ 
+        error: 'Invalid model', 
+        message: `Model '${requestedModel}' is not supported. Available models: ${availableModelIds.join(', ')}` 
+      }, { status: 400 })
+    }
+
+    const modelInfo = getModelById(requestedModel)
+
     startTime = Date.now()
     
     const response = await openai.chat.completions.create({
-      model: process.env.LLM_MODEL || "ai/gpt-oss",
+      model: requestedModel,
       messages: body.messages,
       ...body
     })

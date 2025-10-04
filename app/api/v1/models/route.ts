@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { AVAILABLE_MODELS, EMBEDDING_MODELS } from '@/lib/models'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -36,29 +37,25 @@ export async function GET(request: NextRequest) {
 
     startTime = Date.now()
     
-    // Mock models response
+    // Combine all available models
+    const allModels = [...AVAILABLE_MODELS, ...EMBEDDING_MODELS]
+
     const modelsResponse = {
       object: 'list',
-      data: [
-        {
-          id: 'ai/gpt-oss',
-          object: 'model',
-          created: 1677610602,
-          owned_by: 'nextgenai',
-          permission: [],
-          root: 'ai/gpt-oss',
-          parent: null
-        },
-        {
-          id: 'text-embedding-ada-002',
-          object: 'model',
-          created: 1677610602,
-          owned_by: 'nextgenai',
-          permission: [],
-          root: 'text-embedding-ada-002',
-          parent: null
-        }
-      ]
+      data: allModels.map(model => ({
+        id: model.id,
+        object: 'model',
+        created: 1677610602,
+        owned_by: model.provider.toLowerCase(),
+        permission: [],
+        root: model.id,
+        parent: null,
+        name: model.name,
+        provider: model.provider,
+        description: model.description,
+        context_length: model.contextLength,
+        pricing: model.pricing
+      }))
     }
 
     const endTime = Date.now()

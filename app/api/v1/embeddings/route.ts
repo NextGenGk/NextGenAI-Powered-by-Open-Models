@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { createOpenAIClient } from '@/lib/openai-client'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -35,27 +36,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+    const openai = createOpenAIClient()
+    
     startTime = Date.now()
     
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50))
-    
-    // Generate mock embedding (1536 dimensions like OpenAI)
-    const embedding = Array.from({ length: 1536 }, () => Math.random() * 2 - 1)
-    
-    const embeddingResponse = {
-      object: 'list',
-      data: [{
-        object: 'embedding',
-        embedding: embedding,
-        index: 0
-      }],
+    const embeddingResponse = await openai.embeddings.create({
       model: body.model || 'text-embedding-ada-002',
-      usage: {
-        prompt_tokens: Math.ceil((body.input?.length || 0) / 4),
-        total_tokens: Math.ceil((body.input?.length || 0) / 4)
-      }
-    }
+      input: body.input,
+      ...body
+    })
 
     const endTime = Date.now()
     const responseTime = endTime - startTime

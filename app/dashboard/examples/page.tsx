@@ -29,7 +29,7 @@ export default function ExamplesPage() {
       return
     }
 
-    const loadingKey = data === undefined && endpoint === 'test' ? 'test-get' : endpoint
+    const loadingKey = endpoint
     setLoading(loadingKey)
     
     try {
@@ -99,59 +99,15 @@ export default function ExamplesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="test" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="test">Test</TabsTrigger>
+          <Tabs defaultValue="chat" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="chat">Chat</TabsTrigger>
               <TabsTrigger value="models">Models</TabsTrigger>
               <TabsTrigger value="embeddings">Embeddings</TabsTrigger>
               <TabsTrigger value="completions">Completions</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="test" className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="testInput">Test Message</Label>
-                <Textarea
-                  id="testInput"
-                  placeholder="Enter a test message..."
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  onClick={() => testEndpoint('test', {
-                    message: chatInput
-                  })}
-                  disabled={loading === 'test'}
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  {loading === 'test' ? 'Testing...' : 'Test API (Creates Usage Data)'}
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => testEndpoint('test')}
-                  disabled={loading === 'test-get'}
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  {loading === 'test-get' ? 'Testing...' : 'Test GET Request'}
-                </Button>
-              </div>
-              {results['test'] && (
-                <div className="mt-4 p-4 bg-muted rounded-lg">
-                  <h4 className="font-semibold mb-2">Test API Response:</h4>
-                  <pre className="text-sm overflow-x-auto">
-                    {JSON.stringify(results['test'], null, 2)}
-                  </pre>
-                </div>
-              )}
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  <strong>Note:</strong> This test endpoint creates real usage data that will appear in your usage statistics. 
-                  Use it to test the API tracking functionality.
-                </p>
-              </div>
-            </TabsContent>
+
 
             <TabsContent value="chat" className="space-y-4">
               <div className="space-y-2">
@@ -166,7 +122,7 @@ export default function ExamplesPage() {
               <div className="flex gap-2">
                 <Button 
                   onClick={() => testEndpoint('chat/completions', {
-                    model: 'ai/gpt-oss',
+                    model: 'ai/gpt-oss-20b',
                     messages: [{ role: 'user', content: chatInput }]
                   })}
                   disabled={loading === 'chat/completions'}
@@ -174,16 +130,7 @@ export default function ExamplesPage() {
                   <Play className="w-4 h-4 mr-2" />
                   {loading === 'chat/completions' ? 'Testing...' : 'Test Chat API'}
                 </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => testEndpoint('test', {
-                    message: chatInput
-                  })}
-                  disabled={loading === 'test'}
-                >
-                  <Play className="w-4 h-4 mr-2" />
-                  {loading === 'test' ? 'Testing...' : 'Test API (Mock)'}
-                </Button>
+
               </div>
               {results['chat/completions'] && (
                 <div className="mt-4 p-4 bg-muted rounded-lg">
@@ -193,14 +140,7 @@ export default function ExamplesPage() {
                   </pre>
                 </div>
               )}
-              {results['test'] && (
-                <div className="mt-4 p-4 bg-muted rounded-lg">
-                  <h4 className="font-semibold mb-2">Test API Response:</h4>
-                  <pre className="text-sm overflow-x-auto">
-                    {JSON.stringify(results['test'], null, 2)}
-                  </pre>
-                </div>
-              )}
+
             </TabsContent>
 
             <TabsContent value="models" className="space-y-4">
@@ -264,7 +204,7 @@ export default function ExamplesPage() {
               </div>
               <Button 
                 onClick={() => testEndpoint('completions', {
-                  model: 'ai/gpt-oss',
+                  model: 'ai/gpt-oss-20b',
                   prompt: chatInput,
                   max_tokens: 100
                 })}

@@ -61,6 +61,10 @@ const data = {
           url: "/dashboard/docs",
         },
         {
+          title: "Models",
+          url: "/dashboard/docs/models",
+        },
+        {
           title: "Examples",
           url: "/dashboard/examples",
         },

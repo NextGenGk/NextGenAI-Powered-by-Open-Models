@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { createOpenAIClient } from '@/lib/openai-client'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -35,28 +36,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+    const openai = createOpenAIClient()
+    
     startTime = Date.now()
     
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 300 + 100))
-    
-    const completionResponse = {
-      id: `cmpl-${Date.now()}`,
-      object: 'text_completion',
-      created: Math.floor(Date.now() / 1000),
-      model: body.model || 'ai/gpt-oss',
-      choices: [{
-        text: `\n\nThis is a mock completion response for the prompt: "${body.prompt || 'No prompt provided'}"`,
-        index: 0,
-        logprobs: null,
-        finish_reason: 'stop'
-      }],
-      usage: {
-        prompt_tokens: Math.ceil((body.prompt?.length || 0) / 4),
-        completion_tokens: 20,
-        total_tokens: Math.ceil((body.prompt?.length || 0) / 4) + 20
-      }
-    }
+    const completionResponse = await openai.completions.create({
+      model: body.model || process.env.LLM_MODEL || "ai/gpt-oss-20b",
+      prompt: body.prompt,
+      max_tokens: body.max_tokens || 100,
+      temperature: body.temperature || 0.7,
+      ...body
+    })
 
     const endTime = Date.now()
     const responseTime = endTime - startTime
